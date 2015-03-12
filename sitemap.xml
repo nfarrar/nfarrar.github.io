@@ -4,105 +4,105 @@ xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitem
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>http://127.0.0.1:8080/</loc>
-<lastmod>2015-03-12T00:17:48-00:00</lastmod>
+<loc>http://crunk.io/</loc>
+<lastmod>2015-03-12T08:31:11-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/archives.html</loc>
-<lastmod>2015-03-12T00:17:48-00:00</lastmod>
+<loc>http://crunk.io/archives.html</loc>
+<lastmod>2015-03-12T08:31:11-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tags.html</loc>
-<lastmod>2015-03-12T00:17:48-00:00</lastmod>
+<loc>http://crunk.io/tags.html</loc>
+<lastmod>2015-03-12T08:31:11-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/categories.html</loc>
-<lastmod>2015-03-12T00:17:48-00:00</lastmod>
+<loc>http://crunk.io/categories.html</loc>
+<lastmod>2015-03-12T08:31:11-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/page/about/</loc>
-<lastmod>2015-03-12T00:17:48-00:00</lastmod>
+<loc>http://crunk.io/page/about/</loc>
+<lastmod>2015-03-12T08:31:11-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/category/pelican/</loc>
+<loc>http://crunk.io/category/pelican/</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/virtualenv/index.html</loc>
+<loc>http://crunk.io/tagged/virtualenv/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/pelican/index.html</loc>
+<loc>http://crunk.io/tagged/pelican/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/github/index.html</loc>
+<loc>http://crunk.io/tagged/github/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/fabric/index.html</loc>
+<loc>http://crunk.io/tagged/fabric/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/python/index.html</loc>
+<loc>http://crunk.io/tagged/python/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/gitflow/index.html</loc>
+<loc>http://crunk.io/tagged/gitflow/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/virtualenvwrapper/index.html</loc>
+<loc>http://crunk.io/tagged/virtualenvwrapper/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/tagged/markdown/index.html</loc>
+<loc>http://crunk.io/tagged/markdown/index.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://127.0.0.1:8080/author/nathan-farrar.html</loc>
+<loc>http://crunk.io/author/nathan-farrar.html</loc>
 <lastmod>2015-03-11T00:00:00-07:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>

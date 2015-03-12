@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>crunk.io</title><link href="http://crunk.io/" rel="alternate"></link><link href="http://crunk.io/feeds/pelican.atom.xml" rel="self"></link><id>http://crunk.io/</id><updated>2015-03-11T00:00:00-06:00</updated><entry><title>Introduction to Pelican</title><link href="http://crunk.io/post/introduction-to-pelican/" rel="alternate"></link><updated>2015-03-11T00:00:00-06:00</updated><author><name>Nathan Farrar</name></author><id>tag:crunk.io,2015-02-08:post/introduction-to-pelican/</id><summary type="html">&lt;!-- PELICAN_SUMMARY --&gt;
+
+&lt;p&gt;I finally decided that all these notes sitting around on my computer need to be published. I love me some python and
+I've played around with &lt;a href="https://github.com/getpelican/pelican"&gt;pelican&lt;/a&gt; in the past, so I figured it was time to start hacking away on it and actually set
+it up. Lately I've been hacking around with &lt;a href="https://github.com/ansible/ansible"&gt;ansible&lt;/a&gt; and &lt;a href="https://github.com/fabric/fabric"&gt;fabric&lt;/a&gt;, which is supported out of the box by
+&lt;a href="https://github.com/getpelican/pelican"&gt;pelican&lt;/a&gt;, so I figured I'd blow away the Makefile setup and force myself to write some &lt;a href="https://github.com/fabric/fabric"&gt;fabric&lt;/a&gt;-based python.&lt;/p&gt;
+&lt;p&gt;My "Notebook" has thousands of notes in it on various technical subjects, written in &lt;a href="http://daringfireball.net/projects/markdown/syntax"&gt;markdown&lt;/a&gt; format over the past
+couple years - and since &lt;a href="https://github.com/getpelican/pelican"&gt;pelican&lt;/a&gt; supports &lt;a href="http://daringfireball.net/projects/markdown/syntax"&gt;markdown&lt;/a&gt;, this is a relatively easy conversion.
+&lt;/p&gt;
+&lt;h2 id="project-setup"&gt;Project Setup&lt;/h2&gt;
+&lt;p&gt;My setup process uses the following steps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;setup a virtual environment &amp;amp; install dependencies&lt;/li&gt;
+&lt;li&gt;setup version control &amp;amp; configure repository to serve from github user page&lt;/li&gt;
+&lt;li&gt;setup a premade theme (customization later)&lt;/li&gt;
+&lt;li&gt;setup (basic) plugins&lt;/li&gt;
+&lt;li&gt;tweak our basic configuration&lt;/li&gt;
+&lt;li&gt;setup fabric for management&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To start off, install &lt;a href="https://github.com/pypa/virtualenv"&gt;virtualenv&lt;/a&gt; and [virtualenvwerapper][]. You'll need to do some shell configuration to properly
+setup virtualenvwrapper, which you can find in their documentation.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# setup our project directory&lt;/span&gt;
+mkdir crunk.io &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd &lt;/span&gt;crunk.io
+
+&lt;span class="c"&gt;# create the virtual environment&lt;/span&gt;
+mkvirtualenv crunk.io
+
+&lt;span class="c"&gt;# install basic dependencies&lt;/span&gt;
+pip install pelican markdown
+
+&lt;span class="c"&gt;# build the intial site&lt;/span&gt;
+pelican-quickstart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The quickstart script is much like the [sphinx quickstart][] script - it walks you through a set of prompts to build the
+initial configuration files &amp;amp; site layout:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; Where do you want to create your new web site? [.]
+&amp;gt; What will be the title of this web site? crunk.io
+&amp;gt; Who will be the author of this web site? Nathan Farrar
+&amp;gt; What will be the default language of this web site? [en]
+&amp;gt; Do you want to specify a URL prefix? e.g., http://example.com   (Y/n) n
+&amp;gt; Do you want to enable article pagination? (Y/n) n
+&amp;gt; Do you want to generate a Fabfile/Makefile to automate generation and publishing? (Y/n)
+&amp;gt; Do you want an auto-reload &amp;amp; simpleHTTP script to assist with theme and site development? (Y/n)
+&amp;gt; Do you want to upload your website using FTP? (y/N) n
+&amp;gt; Do you want to upload your website using SSH? (y/N) n
+&amp;gt; Do you want to upload your website using Dropbox? (y/N) n
+&amp;gt; Do you want to upload your website using S3? (y/N) n
+&amp;gt; Do you want to upload your website using Rackspace Cloud Files? (y/N) n
+&amp;gt; Do you want to upload your website using GitHub Pages? (y/N) y
+&amp;gt; Is this your personal page (username.github.io)? (y/N) y
+Done. Your new project is available at crunk.io/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This scaffolded our project structure for us, creating various files. Some important files to note are:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;.
+├── Makefile
+├── content
+├── develop_server.sh
+├── fabfile.py
+├── output
+├── pelicanconf.py
+└── publishconf.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This adds two different ways for us to manage our site: [make][] and &lt;a href="https://github.com/fabric/fabric"&gt;fabric&lt;/a&gt;. The most common (and easiest) way is to
+use the generated &lt;em&gt;Makefile&lt;/em&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;make                # list the Makefile commands
+make clean          # remove the generated content
+make html           # generate the static content
+make devserver      # start the pelican&amp;#39;s webserver, using the develop_server.sh script
+make gitHub         # publish the static content to github pages
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There is also a &lt;em&gt;fabfile.py&lt;/em&gt; configuration, which provides a set of tasks to run using &lt;a href="https://github.com/fabric/fabric"&gt;fabric&lt;/a&gt;.  To use it, we need
+to install fabric (with &lt;code&gt;pip install fabric&lt;/code&gt;), which provides us with the &lt;code&gt;fab&lt;/code&gt; command. The &lt;code&gt;fab&lt;/code&gt; command executes
+using a &lt;code&gt;fabfile.py&lt;/code&gt; configuration script from the &lt;em&gt;current&lt;/em&gt; directory. To list the commands provided by our default
+&lt;code&gt;fabfile.py&lt;/code&gt; we can use &lt;code&gt;fab --list&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;Available commands:
+
+    build
+    cf_upload
+    clean
+    preview
+    publish
+    rebuild
+    regenerate
+    reserve
+    serve
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I'm using a heavily modified fabric setup, so I went ahead an deleted the Makefile and went to town modifying the
+fabfile configuration. Making it work &lt;em&gt;properly&lt;/em&gt; required a lot of hacking. More on this later.&lt;/p&gt;
+&lt;h2 id="version-control"&gt;Version Control&lt;/h2&gt;
+&lt;p&gt;A lesson I've learned the hard way: the first thing we should always do (when starting a new project) is to setup
+version control - even if it's just local, we can rollback a change if we accidently delete a file or junk some content
+we didn't mean to.&lt;/p&gt;
+&lt;p&gt;For my use case, I'm publishing to my github user page (http://nfarrar.github.io/), which is a little tricky. The
+&lt;strong&gt;published&lt;/strong&gt; content has to be served from the &lt;em&gt;master&lt;/em&gt; branch (rather than the &lt;em&gt;gh-pages&lt;/em&gt; branch. There are a couple
+ways we can make this work, but the most straight-forward, is to work from a &lt;em&gt;"source"&lt;/em&gt; branch and publish back
+to master, and track them at the origin using the same names. The default branch that we begin working in is master (but
+it's not actually created until we make a commit), so we can start by initializing the repository, then immediately
+checking out our source branch, so we can begin commiting files:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git init 
+git checkout -b &lt;span class="nb"&gt;source&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now if you look at the branches with &lt;code&gt;git branch&lt;/code&gt; you'll see we've only got one branch (named source) and it's our
+working branch. We can start commiting files to this branch just like normal - and now's a good time to add our
+&lt;code&gt;.gitignore&lt;/code&gt; and &lt;code&gt;.gitattributes&lt;/code&gt; files. &lt;/p&gt;
+&lt;p&gt;A very convenient way to generate gitignore files is via [gitiginore.io][] (you'll need to setup a simple shell alias to
+use it via the cli):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gi OSX,python,vim &amp;gt;&amp;gt; .gitignore.io
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We'll also need to add some additional directories to the &lt;code&gt;.gitignore&lt;/code&gt; file - for example the &lt;code&gt;output&lt;/code&gt; directory (or
+alternate directory where generated content is built).&lt;/p&gt;
+&lt;p&gt;To ensure our line endings and file types are properly handled, we can add the following to &lt;code&gt;.gitattributes&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;# normalize line endings (LF) for text files
+* text=auto
+
+# text files
+*.py    text
+*.css   text
+*.html  text
+*.js    text
+
+# binary files
+*.png binary
+*.jpg binary
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We'll also need to create our repository on github, and setup proper branch tracking (make sure the local source branch
+is pushed to the remote source branch):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git remote add origin git@github.com:nfarrar.github.io.git
+git push -u origin source
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To publish my content, I'm using a fabric wrapper around &lt;a href="https://github.com/davisp/ghp-import"&gt;ghp-import&lt;/a&gt; (more on that later). To manually publish our
+content, we first need to build it (&lt;code&gt;Make build&lt;/code&gt; or &lt;code&gt;fab build&lt;/code&gt;), install ghp-import (&lt;code&gt;pip install ghp-import&lt;/code&gt;), and
+then publish the content:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;ghp-import -p -b master output
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This does a bunch of things all at once. First, the &lt;code&gt;-p&lt;/code&gt; flag says that we should attempt to push the local branch
+that ghp-import is importing content &lt;strong&gt;to&lt;/strong&gt; to the origin. Second, the &lt;code&gt;-b&lt;/code&gt; flags specifies the branch we want to import
+our content &lt;strong&gt;to&lt;/strong&gt;. Third, is the name of the directory we're importing content &lt;strong&gt;from&lt;/strong&gt;. &lt;/p&gt;
+&lt;p&gt;So essentially: Take the content from the &lt;code&gt;output&lt;/code&gt; directory, import it into the root of the &lt;code&gt;master&lt;/code&gt; branch, and pushes
+the &lt;code&gt;master&lt;/code&gt; branch to the &lt;code&gt;master&lt;/code&gt; branch at the origin. And after running this command, you should be able to see your
+site at &lt;code&gt;username.github.io&lt;/code&gt; (and if you're using a custom domain, it should also be accessible there).&lt;/p&gt;
+&lt;p&gt;This process &lt;em&gt;is&lt;/em&gt; destructive, it will destroy your current master branch - so make sure you don't have anything in
+there that you're planning on saving. &lt;/p&gt;
+&lt;p&gt;Additionally, if you're building content to an alternate directory (i build mine to &lt;code&gt;_site&lt;/code&gt;, then you'll need to
+specify that directory instead of &lt;code&gt;output&lt;/code&gt;).&lt;/p&gt;
+&lt;!-- references --&gt;
+
+&lt;h2 id="pelican-configuration"&gt;Pelican Configuration&lt;/h2&gt;
+&lt;p&gt;The pelican configuration already has extensive documentation, but I've added a few notes of my own here that I didn't
+find covered.&lt;/p&gt;
+&lt;h3 id="clean-urls"&gt;Clean URLs&lt;/h3&gt;
+&lt;p&gt;You can simulate 'clean/pretty urls' without touching apache/nginx rewrite rules, by doing some trickery with the URL
+paths:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;ARTICLE_SAVE_AS = &amp;#39;post/{slug}/index.html&amp;#39;
+ARTICLE_URL = &amp;#39;post/{slug}/&amp;#39;
+CATEGORY_URL = &amp;#39;category/{slug}/&amp;#39;
+CATEGORY_SAVE_AS = &amp;#39;category/{slug}/index.html&amp;#39;
+PAGE_URL = &amp;#39;page/{slug}/&amp;#39;
+PAGE_SAVE_AS = &amp;#39;page/{slug}/index.html&amp;#39;
+TAG_URL = &amp;#39;tagged/{slug}/index.html&amp;#39;
+TAG_SAVE_AS = &amp;#39;tagged/{slug}/index.html&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This writes each page, post, category page, and tag page as a folder with an index.html. This makes the URLS look like
+clean server rewrites, even though they aren't.&lt;/p&gt;
+&lt;h3 id="markdown-metadata"&gt;Markdown Metadata&lt;/h3&gt;
+&lt;p&gt;The metadata formatting with markdown files is handled by the python markdown library 'metadata' extension. It's built
+in and pelican uses it. It also sucks. It's completely non-standard, and not &lt;em&gt;really&lt;/em&gt; part of markdown. It's &lt;em&gt;so&lt;/em&gt; close
+to yaml, yet so far away. It broke all my code folding in vim - I was able to get it restored with a bit of hacking
+around, but it was unreliable and I didn't want to spend any more time on it.&lt;/p&gt;
+&lt;p&gt;Fortunately, there's a yaml extension for pelican - which was easy to get working with markdown syntax &amp;amp; folding in vim.&lt;/p&gt;
+&lt;h3 id="default-metadata"&gt;Default Metadata&lt;/h3&gt;
+&lt;p&gt;Messing arround with the default metadata settings ended with a world of hurt. Essentially, I wanted to setup my posts
+so with a couple settings:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Set myself as the default author, since I'm the only one writing on this site.&lt;/li&gt;
+&lt;li&gt;If the article status isn't defined, have it set to 'published' in pelicanconf.py.&lt;/li&gt;
+&lt;li&gt;If the article status isn't defined, have it set to 'draft' in publishconf.py.&lt;/li&gt;
+&lt;li&gt;If the date isn't defined,  set it to today's date by default (so the content reader doesn't break).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This way, when working locally - I can have my drafts get built, but when publishing, they'll be omitted. There's
+even a &lt;code&gt;DEFAULT_METADATA&lt;/code&gt; setting already built into pelican, that I attempted to use:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;DEFAULT_METADATA&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Authors&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Nathan Farrar&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Status&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;draft&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Date&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;today&lt;/span&gt;&lt;span class="p"&gt;()),&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Easy, right? Way wrong. I actually found three separate bugs (I consider them bugs).&lt;/p&gt;
+&lt;p&gt;Setting the author this way exposes a unicode string handling error. It's been reported, but not fixed.&lt;/p&gt;
+&lt;p&gt;The metadata for pages and posts are different, but this setting applies to both. Setting a default value for status
+either causes your pages to be skipped by the reader, or the posts to be skipped by the reader.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Unknown&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;draft&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="nb"&gt;file&lt;/span&gt; &lt;span class="n"&gt;pages&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;about&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;md&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;skipping&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;span class="n"&gt;Done&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Processed&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;article&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;draft&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;0.32&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And the reader completely chokes out (at least the yaml reader does), with &lt;code&gt;tzdata&lt;/code&gt; errors, all day long when we try
+to set a default date:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;posts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;every&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;single&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;post&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;md&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;datetime.date&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;object&lt;/span&gt; &lt;span class="n"&gt;has&lt;/span&gt; &lt;span class="n"&gt;no&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;tzinfo&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;pages&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;every&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;single&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;md&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;datetime.date&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;object&lt;/span&gt; &lt;span class="n"&gt;has&lt;/span&gt; &lt;span class="n"&gt;no&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;tzinfo&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;CRITICAL&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;datetime.date&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;object&lt;/span&gt; &lt;span class="n"&gt;has&lt;/span&gt; &lt;span class="n"&gt;no&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;tzinfo&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As an alternative to the default metadata setting, I tried to set a default time, then switch on the &lt;code&gt;WITH_FUTURE_DATES&lt;/code&gt; 
+flag in &lt;code&gt;pelicanconf.py&lt;/code&gt; and off in &lt;code&gt;publishconf.py&lt;/code&gt;, but this &lt;em&gt;also&lt;/em&gt; chokes:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# pelicanconf.py&lt;/span&gt;
+&lt;span class="n"&gt;DEFAULT_DATE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2016&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;WITH_FUTURE_DATES&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+
+&lt;span class="p"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;python&lt;/span&gt;
+&lt;span class="c"&gt;# publishconf.py&lt;/span&gt;
+&lt;span class="n"&gt;WITH_FUTURE_DATES&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Again with critical errors in the page reader:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;pages&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;about&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;md&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;can&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;t compare offset-naive and offset-aware datetimes&lt;/span&gt;
+&lt;span class="s1"&gt;CRITICAL: can&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="n"&gt;compare&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;naive&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;aware&lt;/span&gt; &lt;span class="n"&gt;datetimes&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I posted an issue on the &lt;a href="https://github.com/getpelican/pelican/issues/1620"&gt;pelican issue tracker&lt;/a&gt; regarding the issues with the &lt;code&gt;DEFAULT_METADATA&lt;/code&gt; setting,
+but the response was a blanket "manually set the status" response. I haven't had any time to dig further into these, so
+I don't have a working solution yet. &lt;/p&gt;
+&lt;p&gt;But the moral of this story is - don't fuck with the default metadata unless you &lt;em&gt;really&lt;/em&gt; want to feel the pain.&lt;/p&gt;
+&lt;h3 id="typogrify"&gt;Typogrify&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://code.google.com/p/typogrify/"&gt;Typogrify&lt;/a&gt; is a python library that fixes up some of our ugly typographical elements and ensures everything is
+&lt;em&gt;web-safe&lt;/em&gt;. Pelican includes support for it out the box, it just needs to be installed &amp;amp; enabled.&lt;/p&gt;
+&lt;p&gt;Install typogrify in our virtual environment:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;pip install typogrify
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And enable it in our pelican configuration:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# Markup&lt;/span&gt;
+&lt;span class="n"&gt;TYPOGRIFY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="markdown"&gt;Markdown&lt;/h3&gt;
+&lt;p&gt;Out of the box, pelican is setup to process markdown documents using the &lt;a href="https://pythonhosted.org/Markdown/"&gt;Python Markdown Library&lt;/a&gt;. This includes
+additional extensions that can be enabled via our pelican configuration. By default, the &lt;a href="https://pythonhosted.org/Markdown/extensions/code_hilite.html"&gt;code-hilite&lt;/a&gt; extension is
+enabled, which uses the &lt;a href="http://pygments.org/"&gt;pygments&lt;/a&gt; library to generate the HTML for highlighted source code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# default MD_EXTENSIONS setting&lt;/span&gt;
+&lt;span class="s"&gt;&amp;#39;MD_EXTENSIONS&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;codehilite(css_class=highlight)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;extra&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are several other extensions we can enable, including the &lt;code&gt;TOC&lt;/code&gt; extension, by modifying our configuration with:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;PYGMENTS_STYLE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;monokai&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;MD_EXTENSIONS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;([&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;codehilite(css_class=highlight)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;extra&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;toc&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;!-- references --&gt;
+
+&lt;h2 id="themes"&gt;Themes&lt;/h2&gt;
+&lt;p&gt;Pelican provides a consolidated themes repository that we can use. I add them to my project as a submodule, so that
+they're all available. To do this, I create a 'themes' directory, then clone them into a subfolder - this way I have
+room to add additional themes in the same folder, that aren't part of the repository. This also allows me to add them
+directly to my project in case the version in the themes repository isn't updated:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;mkdir themes
+git submodule add https://github.com/getpelican/pelican-themes.git themes/pelican-themes
+git submodule add https://github.com/PurePelicanTheme/pure-single themes/pure
+git submodule update --init --recursive
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And now we can use any of our themes by setting it in our pelican configuration:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;THEME&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;themes/pelican-themes/svbtle&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="plugins"&gt;Plugins&lt;/h2&gt;
+&lt;p&gt;Pelican provides a consolidated repository of &lt;a href="https://github.com/getpelican/pelican-plugins"&gt;plugins&lt;/a&gt;. We can add these as a submodule as well, just
+like the themes:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;mkdir plugins
+git submodule add https://github.com/getpelican/pelican-plugins plugins/pelican-plugins plugins/pelican-plugins
+git submodule update --init --recursive
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And in pelicanconf.py, we need to provide the path to our plugins and what plugins to load:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;PLUGIN_PATHS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;plugins/pelican-plugins&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;PLUGINS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;gravatar&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;sitemap&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;summary&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Some of these plugins also need additional configuration in &lt;code&gt;pelicanconf.py&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;SITEMAP&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;format&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;xml&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;priorities&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;articles&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;indexes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;pages&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;changefreqs&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;articles&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;monthly&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;indexes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;daily&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;#39;pages&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;monthly&amp;#39;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Unfortunately, this method doesn't work will all the plugins.  Because we're dealing with python runtime imports things
+have to be structured in a specific way. I've stumbled across a couple plugins that don't properly account for this and
+will fail to work with this kind of setup.&lt;/p&gt;
+&lt;p&gt;A specific example is the [python-md-metayaml][] extension - and I've posted a description of the problem to the
+author's issue tracker &lt;a href="https://github.com/joachimneu/pelican-md-metayaml/issues/6"&gt;here&lt;/a&gt;. If we try to add it to our plugins, we'll get an import error when
+attempting to build the site.&lt;/p&gt;
+&lt;p&gt;To summarize the issue - we can't import the plugin becaues of the way that it's structured without renaming the
+directory - which breaks the purpose of adding the plugins directory as a submodule - so we need to add the plugin as
+a separate submodule in a nested directory, inside our plugins directory, with a specific name:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;mkdir -p plugins/pelican-md-metayaml
+git submodule add https://github.com/joachimneu/pelican-md-metayaml.git plugins/pelican-md-metayaml/md_metayaml
+git submodule update --init --recursive
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We need to add the additional plugin path, and then we can import it correctly:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;PLUGIN_PATHS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;plugins/pelican-plugins&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s"&gt;&amp;#39;plugins/pelican-md-metayaml&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;PLUGINS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;gravatar&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;sitemap&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;summary&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;md_metayaml&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;!-- references --&gt;
+
+&lt;h2 id="fabric"&gt;Fabric&lt;/h2&gt;
+&lt;p&gt;Using fabric instead of the Makefile to a little bit of learning - but was well worth it. The final result is more
+robust and is very extensible. I even added a bit of fine tuning to my configuring to make it easier for others to use
+as well.&lt;/p&gt;
+&lt;p&gt;I've got through several iterations of the code - and no doubt I'll go through some more - so I'm not going to document
+it all here. Instead - just checkout the &lt;a href="http://git.io/p6oi"&gt;source&lt;/a&gt;. It's documented.&lt;/p&gt;
+&lt;p&gt;A couple of highlights though:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;There are no hardcoded settings in my &lt;a href="http://git.io/p6oi"&gt;fabfile.py&lt;/a&gt; (they're loaded with &lt;code&gt;pelican.settings.read_settings()&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;I'm using &lt;a href="https://github.com/lepture/python-livereload"&gt;python-livereload&lt;/a&gt; for my development server.&lt;/li&gt;
+&lt;li&gt;I'm generating notifications using &lt;a href="https://github.com/kfdm/gntp/"&gt;gntp&lt;/a&gt; (python growl library).&lt;/li&gt;
+&lt;li&gt;I'm using &lt;a href="https://github.com/davisp/ghp-import"&gt;ghp-import&lt;/a&gt; wrapped in a python task to publish my content.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- references --&gt;</summary><category term="pelican"></category><category term="python"></category><category term="fabric"></category><category term="gitflow"></category><category term="github"></category><category term="markdown"></category><category term="virtualenv"></category><category term="virtualenvwrapper"></category></entry></feed>
