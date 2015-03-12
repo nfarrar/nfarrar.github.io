@@ -1,0 +1,12 @@
+[submodule "themes/pure"]
+	path = themes/pure
+	url = https://github.com/PurePelicanTheme/pure-single.git
+[submodule "plugins/pelican-plugins"]
+	path = plugins/pelican-plugins
+	url = https://github.com/getpelican/pelican-plugins.git
+[submodule "plugins/pelican-md-metayaml/md_metayaml"]
+	path = plugins/pelican-md-metayaml/md_metayaml
+	url = https://github.com/joachimneu/pelican-md-metayaml.git
+[submodule "themes/pelican-themes"]
+	path = themes/pelican-themes
+	url = https://github.com/getpelican/pelican-themes.git

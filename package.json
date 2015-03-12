@@ -1,0 +1,24 @@
+{
+  "name": "crunk.io",
+  "version": "1.0.0",
+  "description": "crunk.io website source",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "browser-sync": "^2.2.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nfarrar/nfarrar.github.io"
+  },
+  "author": "Nathan Farrar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nfarrar/nfarrar.github.io/issues"
+  },
+  "homepage": "https://crunk.io"
+}

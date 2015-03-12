@@ -1,0 +1,17 @@
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+### Python ***
+*.py[cod]
+
+### Local ***
+_cache
+_pristine
+_secrets
+_site
+node_modules
+themes/crunk

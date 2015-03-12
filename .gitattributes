@@ -1,0 +1,7 @@
+# Normalize line endings as LF.
+* text=auto
+
+*.py    text
+*.css   text
+*.html  text
+*.js    text
