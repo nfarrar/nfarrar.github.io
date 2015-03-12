@@ -1,4 +1,4 @@
-# Crunk.io
-This is the source for my personal website, [crunk.io][].
+# crunk.io
+Source for [crunk.io/](http://crunk.io/). Build tutorial is [here](http://crunk.io/posts/introduction-to-pelican/).
 
-[crunk.io]: http://crunk.io
+![fucking awesome](https://upload.wikimedia.org/wikipedia/en/a/af/Rogue_Unix_Screenshot_CAR.PNG)
